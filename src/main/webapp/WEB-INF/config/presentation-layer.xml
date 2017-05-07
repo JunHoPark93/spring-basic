@@ -16,9 +16,11 @@
         <property name="mappings">
             <props>
                 <prop key="/login.do">login</prop>
+                <prop key="/getBoardList.do">getBoardList</prop>
             </props>
         </property>
     </bean>
 
     <bean id="login" class="com.springbook.view.user.LoginController"></bean>
+    <bean id="getBoardList" class="com.springbook.view.board.GetBoardListController"></bean>
 </beans>
