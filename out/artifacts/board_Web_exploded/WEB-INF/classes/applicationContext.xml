@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.2.xsd">
+
+<!--
+    <context:component-scan base-package="polymorphism"></context:component-scan>
+-->
+    <context:component-scan base-package="com.springbook.biz">
+    </context:component-scan>
+    <context:annotation-config />
+
+    <!-- 어노테이션 사용 -->
+    <aop:aspectj-autoproxy></aop:aspectj-autoproxy>
+
+    <!-- Spring JDBC 설정 -->
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <context:property-placeholder location="classpath:config/database.properties"/>
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${jdbc.driver}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+
+    <!-- Transaction 설정 -->
+    <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+
+    <!-- Transaction advice 설정 -->
+    <tx:advice id="txAdvice" transaction-manager="txManager">
+        <tx:attributes>
+            <tx:method name="get*" read-only="true"/>
+            <tx:method name="*"/>
+        </tx:attributes>
+    </tx:advice>
+    
+    <aop:config>
+        <aop:pointcut id="txPointcut" expression="execution(* com.springbook.biz..*(..))"/>
+
+        <aop:advisor pointcut-ref="txPointcut" advice-ref="txAdvice"/>
+    </aop:config>
+<!--
+    <aop:config>
+        <aop:pointcut id="boardPointcut" expression="execution(* com.springbook.biz..*Impl.*(..))"/>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="boardPointcut"/>
+    </aop:config>
+-->
+
+<!--    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+           <property name="driverClassName" value="org.h2.Driver" />
+           <property name="url" value="jdbc:h2:tcp://localhost/~/test" />
+           <property name="username" value="sa" />
+           <property name="password" value="" />
+       </bean>-->
+
+
+<!--    <bean name="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver" />
+        <property name="url" value="jdbc:mysql://localhost:3306/spring" />
+        <property name="username" value="park" />
+        <property name="password" value="wnsgh93!" />
+    </bean>-->
+
+  <!--  <bean id="userService" class="com.springbook.biz.user.impl.UserServiceImpl">
+        <property name="userDAO" ref="userDAO"></property>
+    </bean>
+
+    <bean id="userDAO" class="com.springbook.biz.user.impl.UserDAO"/>-->
+
+
+    <!--<bean id="tv" class="polymorphism.LgTV"></bean>
+    <bean id="sony" class="polymorphism.SonySpeaker"></bean>
+-->
+    <!--
+    <bean id="tv" class="polymorphism.SamsungTV" p:speaker-ref="sony" p:price="270000">
+        &lt;!&ndash;<property name="speaker" ref="apple"></property>
+        <property name="price" value="270000"></property>&ndash;&gt;
+    </bean>
+
+    <bean id="sony" class="polymorphism.SonySpeaker"></bean>
+    <bean id="apple" class="polymorphism.AppleSpeaker"></bean>-->
+
+  <!--  <bean id="collectionBean" class="com.springbook.ioc.injection.CollectionBean">
+        <property name="addressList">
+            <map>
+                <entry>
+                    <key><value>고길동</value></key>
+                    <value>서울시 강남구 역삼동</value>
+                </entry>
+                <entry>
+                    <key><value>마이콜</value></key>
+                    <value>서울시 강서구 화곡동</value>
+                </entry>
+            </map>
+        </property>
+    </bean>-->
+
+    <bean id="log" class="com.springbook.biz.common.Log4jAdvice"></bean>
+
+ <!--   <aop:config>
+        <aop:pointcut id="allPointcut" expression="execution(* com.springbook.biz..*Impl.*(..))"></aop:pointcut>
+
+        <aop:pointcut id="getPointcut" expression="execution(* com.springbook.biz..*Impl.get*(..))"></aop:pointcut>
+
+        <aop:aspect ref="log">
+            <aop:after pointcut-ref="getPointcut" method="printLogging"/>
+        </aop:aspect>
+    </aop:config>
+    -->
+<!--   <bean id="before" class="com.springbook.biz.common.BeforeAdvice"></bean>
+
+    <aop:config>
+        <aop:pointcut id="allPointcut" expression="execution(* com.springbook.biz..*Impl.*(..))"/>
+
+        <aop:aspect ref="before">
+            <aop:before pointcut-ref="allPointcut" method="beforeLog"/>
+        </aop:aspect>
+    </aop:config>
+
+    <bean id="afterReturning" class="com.springbook.biz.common.AfterReturningAdvice"/>
+
+    <aop:config>
+        <aop:pointcut id="getPoincut" expression="execution(* com.springbook.biz..*Impl.*(..))"/>
+
+        <aop:aspect ref="afterReturning">
+            <aop:after-returning pointcut-ref="getPoincut" method="afterLog" returning="returnObj"></aop:after-returning>
+        </aop:aspect>
+    </aop:config>
+
+    <bean id="afterThrowing" class="com.springbook.biz.common.AfterThrowingAdvice"></bean>
+
+    <aop:config>
+        <aop:pointcut id="allPointcut" expression="execution(* com.springbook.biz..*Impl.*(..))"></aop:pointcut>
+
+        <aop:aspect ref="afterThrowing">
+            <aop:after-throwing pointcut-ref="allPointcut" method="exceptionLog"></aop:after-throwing>
+        </aop:aspect>
+    </aop:config>
+
+    <bean id="around" class="com.springbook.biz.common.AroundAdvice"/>
+
+    <aop:config>
+        <aop:pointcut id="allPointcut" expression="execution(* com.springbook.biz..*Impl.*(..))"/>
+
+        <aop:aspect ref="around">
+            <aop:around pointcut-ref="allPointcut" method="aroundLog"/>
+        </aop:aspect>
+    </aop:config>-->
+
+    <aop:config>
+        <aop:pointcut id="allPointcut" expression="execution(* com.springbook.biz..*Impl.*(..))"/>
+        <aop:pointcut id="getPointcut" expression="execution(* com.springbook.biz..*Impl.*(..))"/>
+
+    </aop:config>
+</beans>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

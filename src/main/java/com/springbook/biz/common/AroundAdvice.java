@@ -1,0 +1,16 @@
+package com.springbook.biz.common;
+
+import org.aspectj.lang.ProceedingJoinPoint;
+
+/**
+ * Created by Jun Ho Park on 2017-05-04.
+ */
+public class AroundAdvice {
+    public Object aroundLog(ProceedingJoinPoint pjp) throws Throwable {
+        System.out.println("[BEFORE]  비지니스 수행 전에 처리할 내용");
+        Object returnObj = pjp.proceed();
+        System.out.println("[AFTER]  비지니스 수행 후에 처리할 내용");
+
+        return returnObj;
+    }
+}
